@@ -3,6 +3,10 @@ package javalabs.lab2.sportsequipment;
 import java.util.Objects;
 
 public class SportEquipment {
+
+    private static final int GOOD_CONDITION_MAX_WEAR = 20;
+    private static final int SATISFACTORY_CONDITION_MAX_WEAR = 50;
+
     private final String name;
     private final String category;
     private final int quantity;
@@ -25,9 +29,9 @@ public class SportEquipment {
 
     // Метод для визначення стану
     public String getCondition() {
-        if (wearPercent <= 20) {
+        if (wearPercent <= GOOD_CONDITION_MAX_WEAR) {
             return "Добрий стан";
-        } else if (wearPercent <= 50) {
+        } else if (wearPercent <= SATISFACTORY_CONDITION_MAX_WEAR) {
             return "Задовільний стан";
         } else {
             return "Потребує ремонту або заміни";
