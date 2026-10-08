@@ -5,6 +5,11 @@ import java.util.Scanner;
 import javalabs.lab2.sportsequipment.exceptions.EquipmentException;
 import javalabs.lab2.sportsequipment.exceptions.InvalidPriceException;
 import javalabs.lab2.sportsequipment.exceptions.InvalidWearPercentException;
+import javalabs.lab2.sportsequipment.maintenance.MaintenanceService;
+import javalabs.lab2.sportsequipment.maintenance.interfaces.MaintenanceStrategy;
+import javalabs.lab2.sportsequipment.maintenance.strategies.AbstractMaintenance;
+import javalabs.lab2.sportsequipment.maintenance.strategies.BasicMaintenance;
+import javalabs.lab2.sportsequipment.maintenance.strategies.FullMaintenance;
 
 public class Main {
 
@@ -44,7 +49,6 @@ public class Main {
             System.out.println();
             System.out.println("=== ЛІНІЙНИЙ ПОШУК ===");
 
-            scanner.nextLine();
 
             System.out.print(
                     "Введіть назву інвентарю для пошуку: "
@@ -85,7 +89,15 @@ public class Main {
                     scanner,
                     equipment
             );
+            System.out.println();
+            System.out.println("=== ОБСЛУГОВУВАННЯ ІНВЕНТАРЮ ===");
 
+            for (SportEquipment item : equipment) {
+                System.out.println();
+                System.out.println("Інвентар: " + item.getName());
+
+                demonstrateMaintenance(item);
+            }
         } catch (InputMismatchException e) {
 
             System.out.println(
@@ -274,5 +286,49 @@ public class Main {
                     "Помилка: інвентарю з таким номером не існує."
             );
         }
+    }
+
+    private static void demonstrateMaintenance(SportEquipment equipment) {
+
+        System.out.println("\n=== ЛР4: ІНТЕРФЕЙСИ ТА ПОЛІМОРФІЗМ ===");
+
+        MaintenanceStrategy[] strategies = {
+            new BasicMaintenance(),
+            new FullMaintenance()
+        };
+
+        for (MaintenanceStrategy strategy : strategies) {
+            System.out.println(strategy.getDescription());
+
+            double cost = strategy.calculateCost(equipment);
+
+            System.out.printf("Вартість: %.2f грн%n", cost);
+        }
+
+        System.out.println("\n=== АБСТРАКТНИЙ КЛАС ===");
+
+        AbstractMaintenance maintenance = new BasicMaintenance();
+        maintenance.printReport(equipment);
+
+        System.out.println("\n=== ПАТЕРН STRATEGY ===");
+
+        MaintenanceService service
+                = new MaintenanceService(new BasicMaintenance());
+
+        service.printDescription();
+        System.out.printf(
+                "Вартість: %.2f грн%n",
+                service.calculate(equipment)
+        );
+
+        service.setStrategy(new FullMaintenance());
+
+        System.out.println("Стратегію змінено!");
+
+        service.printDescription();
+        System.out.printf(
+                "Вартість: %.2f грн%n",
+                service.calculate(equipment)
+        );
     }
 }
