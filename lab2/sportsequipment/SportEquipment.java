@@ -1,9 +1,11 @@
 package javalabs.lab2.sportsequipment;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
-
 import javalabs.lab2.sportsequipment.exceptions.InvalidPriceException;
 import javalabs.lab2.sportsequipment.exceptions.InvalidWearPercentException;
+import javalabs.lab2.sportsequipment.observers.EquipmentObserver;
 
 public class SportEquipment {
 
@@ -14,6 +16,7 @@ public class SportEquipment {
     private String category;
     private int quantity;
     private double pricePerUnit;
+    private final List<EquipmentObserver> observers = new ArrayList<>();
     private double wearPercent;
 
     public SportEquipment(String name, String category, int quantity, double pricePerUnit, double wearPercent) throws InvalidPriceException, InvalidWearPercentException {
@@ -76,6 +79,7 @@ public class SportEquipment {
         }
 
         this.wearPercent = wearPercent;
+        notifyObservers();
     }
 
     public double getTotalPrice() {
@@ -99,8 +103,22 @@ public class SportEquipment {
     }
 
     public double getCurrentValue() {
-    return getTotalPrice() * (1 - wearPercent / 100.0);
-}
+        return getTotalPrice() * (1 - wearPercent / 100.0);
+    }
+
+    public void addObserver(EquipmentObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(EquipmentObserver observer) {
+        observers.remove(observer);
+    }
+
+    private void notifyObservers() {
+        for (EquipmentObserver observer : observers) {
+            observer.update(this);
+        }
+    }
 
     @Override
     public String toString() {
@@ -110,16 +128,20 @@ public class SportEquipment {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
         SportEquipment that = (SportEquipment) obj;
-        
-        return quantity == that.quantity &&
-               Double.compare(that.pricePerUnit, pricePerUnit) == 0 &&
-               Double.compare(that.wearPercent, wearPercent) == 0 &&
-               Objects.equals(name, that.name) &&
-               Objects.equals(category, that.category);
+
+        return quantity == that.quantity
+                && Double.compare(that.pricePerUnit, pricePerUnit) == 0
+                && Double.compare(that.wearPercent, wearPercent) == 0
+                && Objects.equals(name, that.name)
+                && Objects.equals(category, that.category);
     }
 
     @Override
