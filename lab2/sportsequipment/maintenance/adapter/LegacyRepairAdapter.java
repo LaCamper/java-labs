@@ -16,7 +16,7 @@ public class LegacyRepairAdapter implements MaintenanceStrategy {
         return legacyService.estimateRepairPrice(
                 equipment.getName(),
                 (int) equipment.getWearPercent(),
-                equipment.getPricePerUnit()
+                equipment.getPricePerUnit() * equipment.getQuantity()
         );
     }
 
