@@ -7,7 +7,7 @@ import javalabs.lab2.sportsequipment.exceptions.InvalidPriceException;
 import javalabs.lab2.sportsequipment.exceptions.InvalidWearPercentException;
 import javalabs.lab2.sportsequipment.observers.EquipmentObserver;
 
-public class SportEquipment {
+public abstract sealed class SportEquipment permits BallEquipment, Racket {
 
     private static final int GOOD_CONDITION_MAX_WEAR = 20;
     private static final int SATISFACTORY_CONDITION_MAX_WEAR = 50;
@@ -19,7 +19,7 @@ public class SportEquipment {
     private final List<EquipmentObserver> observers = new ArrayList<>();
     private double wearPercent;
 
-    public SportEquipment(String name, String category, int quantity, double pricePerUnit, double wearPercent) throws InvalidPriceException, InvalidWearPercentException {
+    protected SportEquipment(String name, String category, int quantity, double pricePerUnit, double wearPercent) throws InvalidPriceException, InvalidWearPercentException {
         if (pricePerUnit < 0) {
             throw new InvalidPriceException(pricePerUnit);
         }
@@ -31,6 +31,8 @@ public class SportEquipment {
         this.quantity = quantity;
         this.pricePerUnit = pricePerUnit;
         this.wearPercent = wearPercent;
+
+        System.out.println("Конструктор SportEquipment");
     }
 
     public String getName() {
@@ -82,7 +84,7 @@ public class SportEquipment {
         notifyObservers();
     }
 
-    public double getTotalPrice() {
+    public final double getTotalPrice() {
         return quantity * pricePerUnit;
     }
 
@@ -105,6 +107,8 @@ public class SportEquipment {
     public double getCurrentValue() {
         return getTotalPrice() * (1 - wearPercent / 100.0);
     }
+
+    public abstract String getSportType();
 
     public void addObserver(EquipmentObserver observer) {
         observers.add(observer);

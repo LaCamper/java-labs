@@ -104,6 +104,11 @@ public class Main {
             for (SportEquipment item : equipment) {
                 demonstrateObserver(item, scanner);
             }
+
+            System.out.println();
+            System.out.println("=== ЛР6: НАСЛІДУВАННЯ ТА ПОЛІМОРФІЗМ ===");
+
+            demonstrateInheritance();
         } catch (InputMismatchException e) {
 
             System.out.println(
@@ -167,8 +172,34 @@ public class Main {
         System.out.print("Назва: ");
         String name = scanner.nextLine();
 
-        System.out.print("Категорія: ");
-        String category = scanner.nextLine();
+        String category;
+
+        while (true) {
+            System.out.println("Доступні категорії:");
+            System.out.println("1. Футбол");
+            System.out.println("2. Баскетбол");
+            System.out.println("3. Теніс");
+            System.out.print("Оберіть категорію (1-3): ");
+
+            category = scanner.nextLine().trim();
+
+            switch (category) {
+                case "1" ->
+                    category = "футбол";
+                case "2" ->
+                    category = "баскетбол";
+                case "3" ->
+                    category = "теніс";
+                default -> {
+                    System.out.println(
+                            "Невірна категорія! Введіть число від 1 до 3.\n"
+                    );
+                    continue;
+                }
+            }
+
+            break;
+        }
 
         System.out.print("Кількість: ");
         int quantity = scanner.nextInt();
@@ -183,13 +214,21 @@ public class Main {
 
         try {
 
-            return new SportEquipment(
-                    name,
-                    category,
-                    quantity,
-                    price,
-                    wearPercent
-            );
+            return switch (category) {
+                case "футбол" ->
+                    new Football(name, quantity, price, wearPercent);
+
+                case "баскетбол" ->
+                    new Basketball(name, quantity, price, wearPercent);
+
+                case "теніс" ->
+                    new Racket(name, quantity, price, wearPercent);
+
+                default ->
+                    throw new IllegalArgumentException(
+                            "Невідома категорія: " + category
+                    );
+            };
 
         } catch (EquipmentException e) {
 
@@ -368,4 +407,130 @@ public class Main {
 
         equipment.setWearPercent(newWear);
     }
+
+    private static void demonstrateInheritance()
+            throws EquipmentException {
+
+        System.out.println("\n=== ЛАНЦЮЖОК КОНСТРУКТОРІВ ===");
+
+        SportEquipment football = new Football(
+                "Adidas", 5, 1200, 15, 22.0, "Трава"
+        );
+
+        SportEquipment basketball = new Basketball(
+                "Spalding", 3, 950, 65, 24.0, true
+        );
+
+        SportEquipment racket = new Racket(
+                "Wilson", 2, 3500, 65, 24.0
+        );
+
+        System.out.println("\n=== ПОЛІМОРФІЗМ ===");
+
+        SportEquipment[] items = {
+            football,
+            basketball,
+            racket
+        };
+
+        for (SportEquipment item : items) {
+            System.out.println("\n" + item);
+            System.out.println("Вид спорту: " + item.getSportType());
+            System.out.println("Стан: " + item.getCondition());
+        }
+
+        System.out.println("\n=== INSTANCEOF PATTERN MATCHING ===");
+
+        for (SportEquipment item : items) {
+            if (item instanceof Racket tennisRacket) {
+                System.out.println(
+                        tennisRacket.getName()
+                        + " | Потрібна перетяжка струн: "
+                        + tennisRacket.needsRestringing()
+                );
+            }
+        }
+
+        System.out.println("\n=== SEALED SWITCH PATTERN MATCHING ===");
+
+        for (SportEquipment item : items) {
+            String description = switch (item) {
+                case Football f ->
+                    "Футбольний м'яч для покриття: "
+                    + f.getSurfaceType();
+
+                case Basketball b ->
+                    "Баскетбольний м'яч | Indoor: "
+                    + b.isIndoor();
+
+                case Racket r ->
+                    "Тенісна ракетка | Натяг струн: "
+                    + r.getStringTension() + " кг";
+            };
+
+            System.out.println(description);
+        }
+
+        System.out.println("\n=== EQUALS ТА HASHCODE ===");
+
+        Football sameFootball = new Football(
+                "Adidas", 5, 1200, 15, 22.0, "Трава"
+        );
+
+        Football differentFootball = new Football(
+                "Adidas", 5, 1200, 15, 23.0, "Трава"
+        );
+
+        System.out.println(
+                "football.equals(sameFootball): "
+                + football.equals(sameFootball)
+        );
+
+        System.out.println(
+                "sameFootball.equals(football): "
+                + sameFootball.equals(football)
+        );
+
+        System.out.println(
+                "football.equals(differentFootball): "
+                + football.equals(differentFootball)
+        );
+
+        System.out.println(
+                "football.equals(basketball): "
+                + football.equals(basketball)
+        );
+
+        System.out.println(
+                "basketball.equals(football): "
+                + basketball.equals(football)
+        );
+
+        System.out.println("\n=== HASHSET ===");
+
+        java.util.Set<SportEquipment> uniqueEquipment
+                = new java.util.HashSet<>();
+
+        uniqueEquipment.add(football);
+        uniqueEquipment.add(sameFootball);
+        uniqueEquipment.add(differentFootball);
+
+        System.out.println(
+                "Кількість унікальних об'єктів: "
+                + uniqueEquipment.size()
+        );
+
+        System.out.println("\n=== КОМПОЗИЦІЯ ===");
+
+        MaintenanceService service = new MaintenanceService(
+                MaintenanceStrategyFactory.create(1)
+        );
+
+        System.out.printf(
+                "Вартість обслуговування %s: %.2f грн%n",
+                football.getName(),
+                service.calculate(football)
+        );
+    }
+
 }
